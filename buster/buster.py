@@ -50,7 +50,7 @@ def main():
                    "--convert-links "         # make links relative
                    "--page-requisites "       # grab everything: css / inlined images
                    "--no-parent "             # don't go to parent level
-                   "--directory-prefix {1} "  # download contents to static/ folder
+                   "--directory-prefix '{1}' "  # download contents to static/ folder
                    "--no-host-directories "   # don't create domain named folder
                    "--restrict-file-name=unix "  # don't escape query string
                    "{0}").format(arguments['--domain'], static_path)
@@ -58,7 +58,7 @@ def main():
 
         # copy sitemap files since Ghost 0.5.7
         # from https://github.com/joshgerdes/buster/blob/f28bb10fc9522b8b1b1a74d8b74865562d9d5f9e/buster/buster.py
-        base_command = "wget --convert-links --page-requisites --no-parent --directory-prefix {1} --no-host-directories --restrict-file-name=unix {0}/{2}"
+        base_command = "wget --convert-links --page-requisites --no-parent --directory-prefix '{1}' --no-host-directories --restrict-file-name=unix {0}/{2}"
         command = base_command.format(arguments['--domain'], static_path, "sitemap.xsl")
         os.system(command)
         command = base_command.format(arguments['--domain'], static_path, "sitemap.xml")
@@ -84,7 +84,7 @@ def main():
         # remove superfluous "index.html" from relative hyperlinks found in text
         abs_url_regex = re.compile(r'^(?:[a-z]+:)?//', flags=re.IGNORECASE)
 
-        def fixLinks(text, parser):
+        def fix_links(text, parser):
             d = PyQuery(bytes(bytearray(text, encoding='utf-8')), parser=parser)
             for element in d('a, link'):
                 e = PyQuery(element)
@@ -115,7 +115,7 @@ def main():
                 with open(filepath) as f:
                     filetext = f.read().decode('utf8')
                 print "fixing links in ", filepath
-                newtext = fixLinks(filetext, parser)
+                newtext = fix_links(filetext, parser)
                 with open(filepath, 'w') as f:
                     f.write(newtext)
 
@@ -150,8 +150,8 @@ def main():
     elif arguments['preview']:
         os.chdir(static_path)
 
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        httpd = SocketServer.TCPServer(("", 9000), Handler)
+        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", 9000), handler)
 
         print "Serving at port 9000"
         # gracefully handle interrupt here
